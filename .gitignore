@@ -1,19 +1,62 @@
-# Build and Release Folders
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# Built application files
+*.jar
+
+# Java class files
+*.class
+
+# Generated files
 bin/
-bin-debug/
-bin-release/
-[Oo]bj/ # FlashDevelop obj
-[Bb]in/ # FlashDevelop bin
+gen/
+classes/
 
-# Other files and folders
-.settings/
+# Maven output folder
+target
 
-# Executables
-*.swf
-*.air
-*.ipa
-*.apk
+# Eclipse project files
+.classpath
+.project
+.metadata
+.settings
 
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
+# IntelliJ files
+.idea
+*.iml
+
+# OSX files
+.DS_Store
+
+# Windows files
+Thumbs.db
+
+# vi swap files
+*.swap
+
+# backup files
+*.bak
+.svn/
+test-output/
+tmp
+temp
+*.log
+antx.properties
+otter.properties
+jtester.properties
