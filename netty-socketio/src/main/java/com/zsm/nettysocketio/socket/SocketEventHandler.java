@@ -7,7 +7,6 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.annotation.OnEvent;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,71 +19,85 @@ import java.util.Random;
 
 
 @Component
-public class SocketEventHandler {
+public class SocketEventHandler
+{
+    private static final Logger LOGGER = LoggerFactory.getLogger(SocketEventHandler.class);
 
-  private Map<String, Object> socketMap = new HashMap<>();
-  private Logger logger = LoggerFactory.getLogger(SocketEventHandler.class);
+    private Map<String, SocketIOClient> socketMap = new HashMap<>();
 
-  @Autowired
-  private SocketIOServer server;
+    private Logger logger = LoggerFactory.getLogger(SocketEventHandler.class);
 
-  @OnConnect
-  public void onConnect(SocketIOClient client) {
-    String username = client.getHandshakeData().getSingleUrlParam("username");
-    logger.info("用户{}上线了, sessionId: {}", username, client.getSessionId().toString());
-    socketMap.put(username, client);
-    // notification count
-    long count = 10; // 这一步可以通过调用service来查数据库拿到真实数据
+    @Autowired
+    private SocketIOServer server;
 
-    //Map<String, Object> map = new HashMap<>();
-    //map.put("time", new Date());
-    //client.sendEvent("notification", map);
-
-    Random random=new Random();
-    for (int i = 0; ; i++)
+    //添加connect事件，当客户端发起连接时调用
+    @OnConnect
+    public void onConnect(SocketIOClient client)
     {
-
-      JSONObject json=new JSONObject();
-      json.put("time",new Date().toString());
-      json.put("value",random.nextInt(10));
-      client.sendEvent("chart-data",json);
-      try
-      {
-        Thread.sleep(1000);
-      }
-      catch (InterruptedException e)
-      {
-        e.printStackTrace();
-      }
+        if (client != null)
+        {
+            String name = client.getHandshakeData().getSingleUrlParam("username");
+            //String imei = client.getHandshakeData().getSingleUrlParam("imei");
+            //String appid = client.getHandshakeData().getSingleUrlParam("appid");
+            //logger.info("用户设备码：{}, sessionId: {}", imei, client.getSessionId().toString());
+            socketMap.put(name, client);
+        }
+        else
+        {
+            LOGGER.error("socket-io client is empty.");
+        }
     }
-  }
 
-  @OnDisconnect
-  public void onDisConnect(SocketIOClient client) {
-    String[] username = new String[1];
-    socketMap.forEach((key, value) -> {
-      if (value == client) username[0] = key;
-    });
-    logger.info("用户{}离开了", username[0]);
-    socketMap.remove(username[0]);
-  }
+    //添加@OnDisconnect事件，客户端断开连接时调用，刷新客户端信息
+    @OnDisconnect
+    public void onDisConnect(SocketIOClient client)
+    {
+        //String imei = client.getHandshakeData().getSingleUrlParam("imei");
+        String[] username = new String[1];
+        socketMap.forEach((key, value) -> {
+            if (value == client)
+                username[0] = key;
+        });
+        logger.info("用户设备码：{}断开连接", username[0]);
+        socketMap.remove(username[0]);
+        client.disconnect();
+    }
+    //@OnMessage
+    //public void onMessage(SocketIOClient client,String message)
+    //{
+    //    System.out.println(message);
+    //}
 
-  // 自定义一个notification事件，也可以自定义其它任何名字的事件
-  @OnEvent("change-data")
-  public void notification(SocketIOClient client, AckRequest ackRequest, Message message) {
-    String topicUserName = (String) message.getPayload().get("topicUserName");
-    String username = (String) message.getPayload().get("username");
-    String title = (String) message.getPayload().get("title");
-    String titleId = (String) message.getPayload().get("id");
-    String msg = "用户: %s 评论了你的话题: <a href='/topic/%s'>%s</a>";
+    // 自定义一个消息接收事件，用于接收客户端消息，参数类型必须一致，否则后端接收不到数据
+    @OnEvent(value = "receiveMsg")
+    public void onReceiveMsg(SocketIOClient client, AckRequest ackRequest, String message)
+    {
+        String username = client.getHandshakeData().getSingleUrlParam("username");
+        System.out.println(message);
+        Random random = new Random();
+        for (int i = 0; ; i++)
+        {
+            JSONObject json = new JSONObject();
+            json.put("time", new Date().toString());
+            json.put("value", random.nextInt(10));
+            socketMap.get(username).sendEvent("receiveMsg", json);
+            try
+            {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
 
-    // notification count
-    long count = 10;
-
-    Map<String, Object> map = new HashMap<>();
-    map.put("count", count);
-    map.put("message", String.format(msg, username, titleId, title));
-    if(socketMap.get(topicUserName) != null) ((SocketIOClient)socketMap.get(topicUserName)).sendEvent("notification", map);
-  }
+    //客户端上报用户信息
+    @OnEvent(value = "doReport")
+    public void onDoReport(SocketIOClient client, AckRequest ackRequest, Message param)
+    {
+        logger.info("报告地址接口 start....");
+        ackRequest.sendAckData(param);
+    }
 
 }

@@ -1,2 +1,15 @@
 server:
     port: 8080
+
+socketio:
+#    host: 127.0.0.1
+    port: 8088
+    bossCount: 1
+    workCount: 100
+    allowCustomRequests: true
+    upgradeTimeout: 1000000
+    maxFramePayloadLength: 1048576
+    maxHttpContentLength: 1048576
+    pingInterval: 25000
+    pingTimeout: 6000000
+    nameSpace: equip

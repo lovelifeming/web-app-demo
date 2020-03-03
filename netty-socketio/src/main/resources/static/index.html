@@ -58,8 +58,7 @@
             socket = io.connect('http://localhost:8081/?username=zsm');
             // socket.on('connect', function () {});    //连接操作
             // socket.on('disconnect', function () {}); //断开连接操作
-            socket.on('chart-data', function (data) {
-                console.log("接收到的数据：" + data)
+            socket.on("receiveMsg",function (data) {
                 if (xValue.length > 20) {
                     xValue.splice(0, 1);
                 }
@@ -79,11 +78,15 @@
                     }]
                 })
             });
+            // socket.onmessage = function(event){
+            //     console.log(event)
+            // };
             //客户端发送消息到服务器
             $('#change_equip').click(function () {
                 var msg = $('#equip_name').val();
                 if (socket) {
-                    socket.connect(msg);
+                    socket.emit('receiveMsg',msg);
+                    console.log(msg)
                 }
             });
             $('#exit_monitor').click(function () {
