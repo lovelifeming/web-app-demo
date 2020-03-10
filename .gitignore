@@ -30,6 +30,7 @@ target
 # IntelliJ files
 .idea
 *.iml
+.mvn/
 # OSX files
 .DS_Store
 # Windows files
