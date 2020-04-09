@@ -1,13 +1,12 @@
-package com.zsm.nettysocketio.socket;
+package com.zsm.socketio.socket;
 
-import java.util.Map;
-
-
-public class Message
+public class Message<T>
 {
     private String type;
 
-    private Map<String, Object> message;
+    private String userId;
+
+    private T message;
 
     public String getType()
     {
@@ -19,20 +18,36 @@ public class Message
         this.type = type;
     }
 
-    public Map<String, Object> getMessage()
+    public String getUserId()
+    {
+        return userId;
+    }
+
+    public void setUserId(String userId)
+    {
+        this.userId = userId;
+    }
+
+    public T getMessage()
     {
         return message;
     }
 
-    public void setMessage(Map<String, Object> message)
+    public void setMessage(T message)
     {
         this.message = message;
     }
 
-    public Message(String type, Map<String, Object> messages)
+    public Message(String type, String userId, T messages)
     {
         this.type = type;
+        this.userId = userId;
         this.message = messages;
+    }
+
+    public Message()
+    {
+
     }
 
     @Override
@@ -40,6 +55,7 @@ public class Message
     {
         return "Message{" +
                "type='" + type + '\'' +
+               ", userId='" + userId + '\'' +
                ", message=" + message +
                '}';
     }

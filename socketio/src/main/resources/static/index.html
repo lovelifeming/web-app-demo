@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>SOCKET.IO DEMO</title>
+    <base>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/socket.io/2.3.0/socket.io.js"></script>
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        #console {
+            height: 450px;
+            overflow: auto;
+        }
+
+        .username-msg {
+            color: orange;
+        }
+
+        .connect-msg {
+            color: green;
+        }
+
+        .disconnect-msg {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+<div id="content" class="well">
+    <p>这是WebSocket测试！ </p>
+    <hr width="800" size="2" color="red" align="left" noshade="noshade"/>
+    <div id="message"></div>
+    <hr width="800" size="2" color="black" align="left" noshade="noshade"/>
+    <input id="message_data" value="" class="form-control"/></br>
+    <button id="start_connect" class="btn btn-success">开始连接</button>
+    <button id="shutdown_connect" class="btn btn-warning">断开连接</button>
+    <button id="send_message" class="btn btn-info">发送消息</button>
+</div>
+</body>
+<script type="text/javascript">
+    var soc;
+    // 开始连接
+    $('#start_connect').click(function () {
+        var userId = parseInt(Math.random() * 100);
+        var opts = {
+            query: "userId=" + userId
+        };
+        soc = io.connect('http://localhost:18080/zsm', opts);
+        soc.on('connect', function () {
+            console.log("连接成功");
+            soc.emit('pushEvent', "browser send message...");
+            showMessage('connect 连接成功');
+
+            soc.on('pushEvent', function (data) {
+                showMessage('pushEvent' + data);
+                console.log(data);
+                soc.emit('pushEvent', "browser receive message");
+            });
+            soc.on('disconnect', function () {
+                showMessage('disconnect 已下线!');
+            });
+        });
+
+    });
+
+    //客户端发送消息到服务器
+    $('#send_message').click(function () {
+        var msg = $('#message_data').val();
+        if (soc) {
+            soc.emit('pushEvent', msg);
+            showMessage(msg);
+        }
+    });
+    $('#shutdown_connect').click(function () {
+        if (soc) {
+            showMessage("socket shutdown connect...")
+            soc.disconnect();
+            soc = null
+        }
+    });
+
+    function showMessage(message) {
+        var element = $('<div> <span class="disconnect-msg">' + message + '</span> </div>');
+        $('#message').prepend(element);
+    }
+</script>
+</html>

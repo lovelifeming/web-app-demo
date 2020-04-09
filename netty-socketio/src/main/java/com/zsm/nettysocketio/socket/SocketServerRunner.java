@@ -8,15 +8,16 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-@Order(1)
+@Order()
 public class SocketServerRunner implements CommandLineRunner
 {
 
-  @Autowired
-  private SocketIOServer server;
+    @Autowired
+    private SocketIOServer server;
 
-  @Override
-  public void run(String... args) {
-    server.start();
-  }
+    @Override
+    public void run(String... args)
+    {
+        server.start();
+    }
 }

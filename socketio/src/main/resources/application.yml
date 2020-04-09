@@ -1,8 +1,7 @@
 server:
   port: 8080
-
 socketio:
-  host: localhost    # host在本地测试可以设置为localhost或者本机IP，在Linux服务器跑可换成服务器IP
+  host: 127.0.0.1    # host在本地测试可以设置为localhost或者本机IP，在Linux服务器跑可换成服务器IP
   port: 18080
   # socket连接数大小（如只监听一个端口boss线程组为1即可）
   bossCount: 1
@@ -19,13 +18,3 @@ socketio:
   # Ping消息超时时间（毫秒），默认60秒，这个时间间隔内没有接收到心跳消息就会发送超时事件
   pingTimeout: 6000000
   nameSpace: zsm
-# actuator默认是使用JMX来做管理的，启动HTTP方式控制也要配置一下
-management:
-  endpoint:
-    shutdown:
-      enabled: true # actuator中远程关闭程序默认是不打开的，需要打开
-  endpoints:
-    web:
-      exposure:
-        include: shutdown,info,health
-      base-path: /zsm_manage    #  http://IP/zsm_manage/shutdown

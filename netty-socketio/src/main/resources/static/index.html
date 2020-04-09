@@ -5,149 +5,47 @@
     <title>Netty SocketIO</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
-    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
-    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
-    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
-    <script type="text/javascript"
-            src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
-    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
-    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
-    <script type="text/javascript"
-            src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
-    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
     <script src="https://cdn.bootcss.com/socket.io/2.2.0/socket.io.dev.js"></script>
 </head>
 <body style="height: 80%; margin: 0">
 <div id="container" style="height: 80%"></div>
-<input id="equip_name" value="" class="form-control"/></br>
-<button id="start_monitor" class="btn btn-success">开始监控</button>
-<button id="exit_monitor" class="btn btn-warning">停止监控</button>
-
-<button id="change_equip" class="btn btn-info">修改设备</button>
-
+<input id="message_data" value="" class="form-control"/></br>
+<button id="start_connect" class="btn btn-success">开始连接</button>
+<button id="shutdown_connect" class="btn btn-warning">断开连接</button>
+<button id="send_message" class="btn btn-info">发送消息</button>
 </body>
 <script type="text/javascript">
-    var dom = document.getElementById("container");
-    var myChart = echarts.init(dom);
-    var xValue = [];
-    var sValue = [];
-
-    option = null;
-    option = {
-        xAxis: {
-            type: 'category',
-            data: []
-        },
-        yAxis: {
-            type: 'value'
-        },
-        series: [{
-            data: [],
-            type: 'line',
-            smooth: true
-        }]
-    };
-    ;
-    if (option && typeof option === "object") {
-        myChart.setOption(option, true);
-    }
-
     $(document).ready(function () {
         var socket;
-        $('#start_monitor').click(function () {
-            socket = io.connect('http://localhost:8081/?username=zsm');
+        $('#start_connect').click(function () {
+            socket = io.connect('http://localhost:18080/zsm/?username=test&imei=wertyui&appid=asdhjkl');
             // socket.on('connect', function () {});    //连接操作
             // socket.on('disconnect', function () {}); //断开连接操作
-            socket.on("receiveMsg",function (data) {
-                if (xValue.length > 20) {
-                    xValue.splice(0, 1);
-                }
-                if (sValue.length > 20) {
-                    sValue.splice(0, 1);
-                }
-                xValue.push(data.time);
-                sValue.push(data.value);
-                //更新数据
-                myChart.setOption({        //加载数据图表
-                    xAxis: {
-                        data: xValue
-                    },
-                    series: [{
-                        name: '振幅',
-                        data: sValue
-                    }]
-                })
+            socket.on("receiveMsg", function (data) {
+                console.log(data)
+                alert("接收到消息")
             });
-            // socket.onmessage = function(event){
-            //     console.log(event)
-            // };
+            socket.on('disconnect', function () {
+                console.log('socket disconnect...');
+            });
+            socket.onmessage = function (event) {
+                console.log(event)
+            };
+
             //客户端发送消息到服务器
-            $('#change_equip').click(function () {
-                var msg = $('#equip_name').val();
+            $('#send_message').click(function () {
+                var msg = $('#message_data').val();
                 if (socket) {
-                    socket.emit('receiveMsg',msg);
+                    socket.emit('receiveMsg', {type: 'emit', message: msg});
                     console.log(msg)
                 }
             });
-            $('#exit_monitor').click(function () {
+            $('#shutdown_connect').click(function () {
                 if (socket) {
                     socket.disconnect();
                 }
             });
         });
-
-
-        /*var urlPrefix = 'ws://localhost:8087/digitized/equipmentWs';  // 192.168.3.107  localhost   Motor_Fan_QAH
-        var ws = null;
-        $('#start_monitor').click(function () {
-            var name = $('#equip_name').val();
-            var url = urlPrefix;
-            ws = new WebSocket(url);
-            ws.onopen = function () {
-                console.log("建立 websocket 连接...");
-                if (name) {
-                    ws.send(name)
-                }
-            };
-            ws.onmessage = function (event) {
-                //服务端发送的消息
-                var d = JSON.parse(event.data)
-                console.log("接收到的数据：" + d)
-                if (xValue.length > 20) {
-                    xValue.splice(0, 1);
-                }
-                if (sValue.length > 20) {
-                    sValue.splice(0, 1);
-                }
-                xValue.push(d.time);
-                sValue.push(d.value);
-                //更新数据
-                myChart.setOption({        //加载数据图表
-                    xAxis: {
-                        data: xValue
-                    },
-                    series: [{
-                        name: '振幅',
-                        data: sValue
-                    }]
-                })
-            };
-            ws.onclose = function () {
-                console.log("关闭 websocket 连接...");
-            }
-        });
-        //客户端发送消息到服务器
-        $('#change_equip').click(function () {
-            var msg = $('#equip_name').val();
-            if (ws) {
-                ws.send(msg);
-            }
-        });
-        $('#exit_monitor').click(function () {
-            if (ws) {
-                ws.close();
-            }
-        });*/
     });
 </script>
 </html>
