@@ -9,6 +9,7 @@
     <url>http://maven.apache.org</url>
     <modules>
         <module>netty-socketio</module>
+        <module>socket-interceptor</module>
         <module>socketio</module>
         <module>websocket</module>
     </modules>
