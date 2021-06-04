@@ -46,7 +46,7 @@
         <commons-logging.version>1.1.1</commons-logging.version>
         <ezmorph.version>1.0.6</ezmorph.version>
 
-        <httpclient.version>4.5.3</httpclient.version>
+        <httpclient.version>4.5.13</httpclient.version>
     </properties>
 
     <dependencies>
